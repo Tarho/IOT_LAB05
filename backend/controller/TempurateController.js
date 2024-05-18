@@ -113,3 +113,22 @@ export const getAllDataT = async (req, res, next) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
+export const getTemperatureSensorDataByBoardId = async (req, res) => {
+  const { board_id } = req.params;
+
+  try {
+    const sensorData = await TemperatureSensor.findOne({ board_id })
+      .sort({ _id: -1 }) // or .sort({ date: -1 }) if you prefer to sort by date
+      .limit(1);
+
+    if (!sensorData) {
+      return res.status(404).json({ message: "No data found for this board ID" });
+    }
+
+    res.json(sensorData);
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error", error });
+  }
+};

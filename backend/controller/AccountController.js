@@ -30,7 +30,7 @@ export const login = async (req, res) => {
       jwtSecret
     );
 
-    res.json("Welcome");
+    res.json({ token, user }); // Send token and user object
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }
@@ -67,5 +67,28 @@ export const register = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error });
     console.log(error);
+  }
+};
+
+export const getAllAccounts = async (req, res) => {
+  try {
+    const accounts = await Account.find();
+    res.status(200).json(accounts);
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error", error });
+  }
+};
+
+export const getAccountById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const account = await Account.findById(id);
+    if (!account) {
+      return res.status(404).json({ message: "Account not found" });
+    }
+    res.json(account);
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
   }
 };
