@@ -3,6 +3,8 @@ import { sendMessage } from "./mqttService";
 import SensorChart from "./SensorChart";
 import SensorChart1 from "./SensorChart1";
 import SensorChart2 from "./SensorChart2";
+import { saveAs } from "file-saver";
+import * as XLSX from "xlsx";
 
 function ToggleButton({ topic, initialStatus }) {
   const [isOn, setIsOn] = useState(initialStatus);
@@ -29,11 +31,16 @@ const Control = () => {
   const [humidity, setHumidity] = useState(null);
   const [temperature, setTemperature] = useState(null);
   const [sensorLogs, setSensorLogs] = useState([]);
+  const [filter, setFilter] = useState({
+    type: "All",
+    startDate: "",
+    endDate: "",
+  });
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 6000); // Auto-refresh every 6 seconds
-    return () => clearInterval(interval); // Clean up the interval on unmount
+    const interval = setInterval(fetchData, 6000);
+    return () => clearInterval(interval);
   }, []);
 
   const fetchData = () => {
@@ -45,7 +52,13 @@ const Control = () => {
           setLightValue(data.light);
           setSensorLogs((logs) => [
             ...logs,
-            { type: "Light", value: data.light, date: data.date, id: data.board_id, ip: data.ipaddress },
+            {
+              type: "Light",
+              value: data.light,
+              date: data.date,
+              id: data.board_id,
+              ip: data.ipaddress,
+            },
           ]);
         }
       })
@@ -62,8 +75,20 @@ const Control = () => {
           setTemperature(data.temperature);
           setSensorLogs((logs) => [
             ...logs,
-            { type: "Temperature", value: data.temperature, date: data.date, id: data.board_id, ip: data.ipaddress },
-            { type: "Humidity", value: data.humidity, date: data.date, id: data.board_id, ip: data.ipaddress },
+            {
+              type: "Temperature",
+              value: data.temperature,
+              date: data.date,
+              id: data.board_id,
+              ip: data.ipaddress,
+            },
+            {
+              type: "Humidity",
+              value: data.humidity,
+              date: data.date,
+              id: data.board_id,
+              ip: data.ipaddress,
+            },
           ]);
         }
       })
@@ -81,6 +106,58 @@ const Control = () => {
     const min = String(date.getUTCMinutes()).padStart(2, '0');
     const ss = String(date.getUTCSeconds()).padStart(2, '0');
     return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilter((prevFilter) => ({ ...prevFilter, [name]: value }));
+  };
+
+  const filteredLogs = sensorLogs.filter((log) => {
+    if (filter.type !== "All" && log.type !== filter.type) {
+      return false;
+    }
+    if (filter.startDate && new Date(log.date) < new Date(filter.startDate)) {
+      return false;
+    }
+    if (filter.endDate && new Date(log.date) > new Date(filter.endDate)) {
+      return false;
+    }
+    return true;
+  });
+
+  const downloadCSV = () => {
+    const headers = ["Type", "Value", "Date", "ID", "IP Address"];
+    const rows = filteredLogs.map((log) => [
+      log.type,
+      log.value,
+      new Date(log.date).toLocaleString(),
+      log.id,
+      log.ip,
+    ]);
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers, ...rows].map((e) => e.join(",")).join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "sensor_logs.csv");
+    document.body.appendChild(link); // Required for FF
+    link.click();
+  };
+
+  const downloadExcel = () => {
+    const ws = XLSX.utils.json_to_sheet(
+      filteredLogs.map((log) => ({
+        Type: log.type,
+        Value: log.value,
+        Date: new Date(log.date).toLocaleString(),
+        ID: log.id,
+        "IP Address": log.ip,
+      }))
+    );
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Logs");
+    XLSX.writeFile(wb, "sensor_logs.xlsx");
+
   };
 
   return (
@@ -93,7 +170,6 @@ const Control = () => {
             Led 1{" "}
             <ToggleButton topic={`esp8266/client1`} initialStatus={false} />
           </p>
-
           <div className="container">
             <p className="primary-text1">
               Led 2{" "}
@@ -120,7 +196,8 @@ const Control = () => {
         <h1 className="primary-heading1">Sensor Status</h1>
         <div className="container">
           <p className="primary-text1">
-            Temperature Room: {temperature !== null ? temperature : "Loading..."}
+            Temperature Room:{" "}
+            {temperature !== null ? temperature : "Loading..."}
           </p>
         </div>
         <div className="container2">
@@ -146,7 +223,17 @@ const Control = () => {
 
       <div className="container4">
         <h1>System Log</h1>
-        {sensorLogs.slice(-3).map((log, index) => (
+        <div className="filter-container">
+          <select name="type" value={filter.type} onChange={handleFilterChange}>
+            <option value="All">All</option>
+            <option value="Temperature">Temperature</option>
+            <option value="Humidity">Humidity</option>
+            <option value="Light">Light</option>
+          </select>
+          <button onClick={downloadCSV}>Download CSV</button>
+          <button onClick={downloadExcel}>Download Excel</button>
+        </div>
+        {filteredLogs.slice(-3).map((log, index) => (
           <div className="log" key={index}>
             <div className="log1">
               <div className="log2">
@@ -167,7 +254,14 @@ const Control = () => {
               </div>
               <div className="log5">
                 <div className="log6">
-                  <h2>{log.value} {log.type === "Temperature" ? "°C" : log.type === "Humidity" ? "%" : "lux"}</h2>
+                  <h2>
+                    {log.value}{" "}
+                    {log.type === "Temperature"
+                      ? "°C"
+                      : log.type === "Humidity"
+                      ? "%"
+                      : "lux"}
+                  </h2>
                 </div>
                 <div className="log6">
                   <h3>{formatDate(log.date)}</h3>
@@ -179,6 +273,7 @@ const Control = () => {
       </div>
     </div>
   );
+};
 };
 
 export default Control;
