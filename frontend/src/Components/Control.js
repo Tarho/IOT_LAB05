@@ -72,6 +72,17 @@ const Control = () => {
       });
   };
 
+  const formatDate = (isoString) => {
+    const date = new Date(isoString);
+    const yyyy = date.getUTCFullYear();
+    const mm = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+    const dd = String(date.getUTCDate()).padStart(2, '0');
+    const hh = String(date.getUTCHours()).padStart(2, '0');
+    const min = String(date.getUTCMinutes()).padStart(2, '0');
+    const ss = String(date.getUTCSeconds()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
+  };
+
   return (
     <div className="home-banner-container1">
       <div className="home-text-section">
@@ -159,7 +170,7 @@ const Control = () => {
                   <h2>{log.value} {log.type === "Temperature" ? "°C" : log.type === "Humidity" ? "%" : "lux"}</h2>
                 </div>
                 <div className="log6">
-                  <h3>{new Date(log.date).toLocaleString()}</h3>
+                  <h3>{formatDate(log.date)}</h3>
                 </div>
               </div>
             </div>
