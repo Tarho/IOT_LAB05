@@ -2,7 +2,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Reem Kufi", sans-serif !important;
+  font-family: Reem Kufi, sans-serif !important;
 }
 img {
   max-width: 100%;
@@ -616,7 +616,7 @@ tr:hover {
 }
 
 /* Inside your CSS file or style block */
-input[type="date"] {
+input[type=date] {
   padding: 8px 12px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -625,7 +625,7 @@ input[type="date"] {
   margin-bottom: 10px;
 }
 
-input[type="date"]:focus {
+input[type=date]:focus {
   border-color: #007bff;
   box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
@@ -745,3 +745,20 @@ h2{
 .hi{
   color: #007bff;
 }
+
+.download-button {
+  width: 25%;
+  padding: 1%;
+  margin: 1%;
+  color: #01ffbb;
+  background: white;
+  border-color: #01ffbb;
+  border-radius: 20px;
+  font-weight: 700;
+}
+
+.download-button:hover {
+  color: white;
+  background: #01ffbb;
+}
+

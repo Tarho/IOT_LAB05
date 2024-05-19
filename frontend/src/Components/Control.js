@@ -100,12 +100,14 @@ const Control = () => {
   const formatDate = (isoString) => {
     const date = new Date(isoString);
     const yyyy = date.getUTCFullYear();
-    const mm = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are zero-indexed
-    const dd = String(date.getUTCDate()).padStart(2, '0');
-    const hh = String(date.getUTCHours()).padStart(2, '0');
-    const min = String(date.getUTCMinutes()).padStart(2, '0');
-    const ss = String(date.getUTCSeconds()).padStart(2, '0');
+    const mm = String(date.getUTCMonth() + 1).padStart(2, "0"); // Months are zero-indexed
+    const dd = String(date.getUTCDate()).padStart(2, "0");
+    const hh = String(date.getUTCHours()).padStart(2, "0");
+    const min = String(date.getUTCMinutes()).padStart(2, "0");
+    const ss = String(date.getUTCSeconds()).padStart(2, "0");
     return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
+  };
+
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilter((prevFilter) => ({ ...prevFilter, [name]: value }));
@@ -157,7 +159,6 @@ const Control = () => {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Logs");
     XLSX.writeFile(wb, "sensor_logs.xlsx");
-
   };
 
   return (
@@ -230,8 +231,13 @@ const Control = () => {
             <option value="Humidity">Humidity</option>
             <option value="Light">Light</option>
           </select>
-          <button onClick={downloadCSV}>Download CSV</button>
-          <button onClick={downloadExcel}>Download Excel</button>
+          <button onClick={downloadCSV} class="download-button">
+            Download CSV
+          </button>
+
+          <button onClick={downloadExcel} className="download-button">
+            Download Excel
+          </button>
         </div>
         {filteredLogs.slice(-3).map((log, index) => (
           <div className="log" key={index}>
@@ -273,7 +279,6 @@ const Control = () => {
       </div>
     </div>
   );
-};
 };
 
 export default Control;
