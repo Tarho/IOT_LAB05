@@ -131,7 +131,7 @@ const Control = () => {
     const rows = filteredLogs.map((log) => [
       log.type,
       log.value,
-      new Date(log.date).toLocaleString(),
+      formatDate(log.date),
       log.id,
       log.ip,
     ]);
@@ -151,7 +151,7 @@ const Control = () => {
       filteredLogs.map((log) => ({
         Type: log.type,
         Value: log.value,
-        Date: new Date(log.date).toLocaleString(),
+        Date: formatDate(log.date),
         ID: log.id,
         "IP Address": log.ip,
       }))
@@ -195,30 +195,50 @@ const Control = () => {
 
       <div className="home-text-section1">
         <h1 className="primary-heading1">Sensor Status</h1>
-        <div className="container">
-          <p className="primary-text1">
-            Temperature Room:{" "}
-            {temperature !== null ? temperature : "Loading..."}
-          </p>
-        </div>
-        <div className="container2">
-          <SensorChart />
-        </div>
-        <div className="container">
-          <p className="primary-text1">
-            Humidity Room: {humidity !== null ? humidity : "Loading..."}
-          </p>
-        </div>
-        <div className="container2">
-          <SensorChart1 />
-        </div>
-        <div className="container">
-          <p className="primary-text1">
-            Light Room: {light !== null ? light : "Loading..."}
-          </p>
-        </div>
-        <div className="container2">
-          <SensorChart2 />
+        <div
+          className="include"
+          style={{ display: "flex", justifyContent: "space-between" }}
+        >
+          <div
+            className="chart_one"
+            style={{ display: "flex", flexDirection: "column" }}
+          >
+            <div className="container">
+              <p className="primary-text1">
+                Temperature Room:{" "}
+                {temperature !== null ? temperature : "Loading..."}
+              </p>
+            </div>
+            <div className="container2">
+              <SensorChart />
+            </div>
+          </div>
+          <div
+            className="chart_two"
+            style={{ display: "flex", flexDirection: "column" }}
+          >
+            <div className="container">
+              <p className="primary-text1">
+                Humidity Room: {humidity !== null ? humidity : "Loading..."}
+              </p>
+            </div>
+            <div className="container2">
+              <SensorChart1 />
+            </div>
+          </div>
+          <div
+            className="chart_three"
+            style={{ display: "flex", flexDirection: "column" }}
+          >
+            <div className="container">
+              <p className="primary-text1">
+                Light Room: {light !== null ? light : "Loading..."}
+              </p>
+            </div>
+            <div className="container2">
+              <SensorChart2 />
+            </div>
+          </div>
         </div>
       </div>
 

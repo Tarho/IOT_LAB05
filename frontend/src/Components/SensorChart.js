@@ -1,13 +1,18 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Line } from "react-chartjs-2";
-import 'chart.js/auto'; 
-
+import "chart.js/auto";
 
 const SensorChart = () => {
   const [sensorData, setSensorData] = useState([]);
+  const intervalRef = useRef(null);
 
   useEffect(() => {
     fetchData();
+    // Set up the interval to fetch data every 30 seconds
+    intervalRef.current = setInterval(fetchData, 1);
+
+    // Clean up interval on component unmount
+    return () => clearInterval(intervalRef.current);
   }, []);
 
   const fetchData = async () => {

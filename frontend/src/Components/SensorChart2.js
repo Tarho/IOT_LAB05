@@ -1,13 +1,18 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Line } from "react-chartjs-2";
-import 'chart.js/auto'; 
-
+import "chart.js/auto";
 
 const SensorChart = () => {
   const [sensorData, setSensorData] = useState([]);
+  const intervalRef = useRef(null);
 
   useEffect(() => {
     fetchData();
+    // Set up the interval to fetch data every 30 seconds
+    intervalRef.current = setInterval(fetchData, 1);
+
+    // Clean up interval on component unmount
+    return () => clearInterval(intervalRef.current);
   }, []);
 
   const fetchData = async () => {
@@ -20,7 +25,7 @@ const SensorChart = () => {
     }
   };
 
-  // Extracting temperature and humidity data
+  // Extracting light data
   const light = sensorData.map((data) => data.light);
   const ids = sensorData.map((data) => data._id);
 
@@ -31,7 +36,7 @@ const SensorChart = () => {
       {
         label: "Light",
         data: light,
-        borderColor: "rgba(200, 162, 235, 100)",
+        borderColor: "rgba(200, 162, 235, 1)",
         backgroundColor: "rgba(200, 162, 235, 0.2)",
       },
     ],
